@@ -42,9 +42,9 @@ class grille
         int distanceO(int i, int j);
         int distanceS(int i, int j);
         int distanceN(int i, int j);
-        int CalculCout(int i, int j);
+        void CalculCout(int i, int j);
         void affichage() ;
-        void Dijstra( int s ) ;
+        void Dijstra() ;
         void initialiser() ;
 
 

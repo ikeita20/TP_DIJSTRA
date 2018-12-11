@@ -66,7 +66,7 @@ int grille::VoisinEst(int i, int j )
 }
 int grille::VoisinOuest(int i, int j)
 {
-    if(j<=0 || i >= L)
+    if(j<=0 || i >= L || j>=C )
     {
         return -1;
     }
@@ -137,7 +137,8 @@ void grille::affichage()
     {
         for(int j = 0; j< C; j++ )
         {
-            cout<< RetourneSommet(i,j) <<"-"<<CouleurSommet(i,j) <<" " ;
+            CalculCout(i,j);
+            cout<< RetourneSommet(i,j) <<"-"<<CouleurSommet(i,j) <<" "<< PCD[i].distance << " " ;
 
         }
         cout<<endl;
@@ -195,7 +196,7 @@ int grille::distanceO(int i, int j){
 }
 
 
-int grille::CalculCout(int i, int j )
+void grille::CalculCout(int i, int j )
 {
     int VE,VO,VS,VN ;
     int temp, temp1 , minimum  ;
@@ -208,18 +209,23 @@ int grille::CalculCout(int i, int j )
 
             if(VO == -1 && VN == -1 )
             {
-                return minimum = min(VE,VS) ;
+                minimum = min(VE,VS) ;
+                PCD[i*C+j].distance = minimum ;
+
 
             }
             else if( VN == -1 )
             {
                  temp = min(VE,VO) ;
-              return  minimum = min(temp,VS) ;
+                minimum = min(temp,VS) ;
+                PCD[i*C+j].distance = minimum ;
+
 
             }
             else if( VE == -1 && VN == -1 )
             {
-                return minimum = min(VO,VS) ;
+                 minimum = min(VO,VS) ;
+                  PCD[i*C+j].distance = minimum ;
 
             }
             else if( VE == -1)
@@ -230,73 +236,159 @@ int grille::CalculCout(int i, int j )
             }
             else if(VE == -1 && VS == -1 )
             {
-              return  minimum = min(VO,VN) ;
-
-
+                minimum = min(VO,VN) ;
+                 PCD[i*C+j].distance = minimum ;
             }
             else if(VS== - 1 )
             {
                 temp = min(VE,VO) ;
-                return minimum = min(temp,VN) ;
-
+                minimum = min(temp,VN) ;
+                 PCD[i*C+j].distance = minimum ;
 
             }
 
             else if(VO == - 1 )
             {
                 temp = min(VS,VN) ;
-              return  minimum = min(temp,VE) ;
-
-
+                minimum = min(temp,VE) ;
+                 PCD[i*C+j].distance = minimum ;
 
             }
             else if (VO == -1 && VS == -1 )
             {
-              return  minimum = min(VE,VN) ;
+                minimum = min(VE,VN) ;
+                 PCD[i*C+j].distance = minimum ;
 
             }
             else
             {
 
-             temp = min(VE,VO) ;
-            temp1 = min(VS,VN) ;
-            return minimum = min(temp,temp1) ;
-
-
+                 temp = min(VE,VO) ;
+                temp1 = min(VS,VN) ;
+                 minimum = min(temp,temp1) ;
+                  PCD[i*C+j].distance = minimum ;
 
             }
 
-        return 99999 ;
 
 }
 
 void initialiser()
 {
 
-
 }
 
-void grille::Dijstra(int s )
+void grille::Dijstra()
 {
     queue<int>file ;
-    int element;
-        for(int i= 0; i<L; i++)
-        {
-            for(int j= 0; j<C; j++)
-            {
-                    RetourneSommet(i,j) ;
-                    file.push(element);
-                    TabCouleur[i*C+j] = 'g' ;
+    int tabVoisin[4] ;
+    int sommet ;
+    bool trouver =false ;
+    int coord_iS;
+    int coord_jS;
 
-                    file.pop();
-                    file.push(VoisinEst(i,j));
-                    PCD[i*C+j].distance =  CalculCout(i,j) ;
-            }
+    sommet = Tableaux[0] ;
+    file.push(0) ;
+
+            while( !file.empty() &&  TabCouleur[coord_iS*C+coord_jS] !='n' )
+            {
+
+
+                for(int i= 0; i<L;i++)
+                {
+                    for(int j = 0 ; j<C ; j++ )
+                    {
+
+                        if( sommet == Tableaux[i*C+j] )
+                         {
+                             trouver = true ;
+                             coord_iS = i;
+                             coord_jS = j ;
+
+                        }
+
+                    }
+
+
+                }
+
+
+
+                if(trouver)
+                {
+                     file.push(sommet) ;
+
+                    TabCouleur[coord_iS*C+coord_jS] = 'g' ;
+
+                    int ve,vo,vs,vn ;
+
+
+
+                    ve = VoisinEst(coord_iS,coord_jS) ;
+                    vo = VoisinOuest(coord_iS, coord_jS) ;
+                    vs = VoisinSud(coord_iS, coord_jS) ;
+                    vn = VoisinNord(coord_iS, coord_jS) ;
+
+                    tabVoisin[0] = ve ;
+                     tabVoisin[1] = vo ;
+                      tabVoisin[2] = vs ;
+                       tabVoisin[3] = vn ;
+
+                       for(int i=0 ; i<=3; i++ )
+                       {
+                            if( tabVoisin[i] != -1 )
+                            {
+
+                                if( tabVoisin[i] == Tableaux[coord_iS*C+(coord_jS+1)] )
+                                {
+                                    file.push(tabVoisin[i]) ;
+                                    TabCouleur[coord_iS*C+(coord_jS+1)] = 'g' ;
+
+                                }
+                                else if ( tabVoisin[i] == Tableaux[coord_iS*C+(coord_jS-1)] )
+                                {
+                                    file.push(tabVoisin[i]) ;
+                                    TabCouleur[coord_iS*C+(coord_jS-1)] = 'g' ;
+
+                                }
+                                else if ( tabVoisin[i] == Tableaux[ (coord_iS+1)*C + coord_jS ] )
+                                {
+                                    file.push(tabVoisin[i]) ;
+                                    TabCouleur[ (coord_iS+1)*C+ coord_jS ] = 'g' ;
+
+                                }
+                                else
+                                {
+                                    file.push(tabVoisin[i]) ;
+                                    TabCouleur[ (coord_iS-1)*C+ coord_jS ] = 'g' ;
+
+
+                                }
+
+                            }
+                       }
+
+
+                }
+
+                else
+                {
+                    cout<<"ce sommet n'existe pas dans le graphe ! "<<endl; trouver = false ;
+                }
+
+                      //  CalculCout(coord_iS,coord_jS) ;
+                        TabCouleur[coord_iS*C+coord_jS] = 'n' ;
+
+                         file.pop() ;
+
+                         sommet = (int)file.front() ;
+
+
+
+
+
 
         }
-
-
-
 
 
 }
